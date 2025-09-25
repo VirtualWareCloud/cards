@@ -1,97 +1,571 @@
-<!DOCTYPE html>
+<!--
+  FUTURISTIC CREDIT CARD GENERATOR
+  File: futuristic-credit-card-generator.html
+  Purpose: Dev/test-only credit card generator (Luhn-valid, card-type aware).
+  IMPORTANT: For development and UI testing only. DO NOT USE for real transactions.
+  Suggested commit message: "Polished futuristic credit card generator — responsive UI, Luhn validator, BIN support, copy/download"
+-->
+
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Credit Card Generator</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
-        .card {
-            width: 300px;
-            height: 200px;
-            background-color: #ff6666;
-            border-radius: 10px;
-            margin: 20px auto;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        .card h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .card p {
-            margin-bottom: 10px;
-        }
-        button {
-            background-color: #fff;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Futuristic Credit Card Generator — Dev / Test</title>
+  <meta name="description" content="Futuristic Credit Card Generator for development & UI testing (Luhn valid). For dev/test only." />
+  <style>
+    :root{
+      --bg:#071017;
+      --panel:#0e1720;
+      --accent1:#00e5ff;
+      --accent2:#9b59ff;
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.6);
+      --card-w: 380px;
+      --card-h: 240px;
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100%;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(155,89,255,0.06), transparent 6%),
+        radial-gradient(900px 500px at 90% 90%, rgba(0,229,255,0.04), transparent 8%),
+        var(--bg);
+      color:#eaf6ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      gap:24px;
+    }
+
+    .container{
+      width:100%;
+      max-width:1100px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:start;
+    }
+
+    /* responsive */
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr; padding-bottom: 32px}
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.012));
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 10px 30px rgba(2,6,12,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .left .heading{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .logo-dot{
+      width:44px;height:44px;border-radius:12px;
+      background: linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#021017; font-size:16px;
+      box-shadow: 0 6px 18px rgba(155,89,255,0.12), 0 4px 8px rgba(0,229,255,0.06);
+    }
+    h1{font-size:20px;margin:0}
+    p.lead {margin:0;color:var(--muted);font-size:13px}
+
+    /* card preview */
+    .card-preview{
+      width:100%;
+      max-width:var(--card-w);
+      height:var(--card-h);
+      border-radius:var(--radius);
+      padding:20px;
+      position:relative;
+      overflow:hidden;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:6px;
+      margin-bottom:14px;
+    }
+
+    .chip {
+      width:56px;height:40px;border-radius:6px;background:linear-gradient(180deg,#bdbdbd,#7c7c7c);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    }
+
+    .card-top{display:flex;justify-content:space-between;align-items:center}
+    .card-brand{font-weight:700;letter-spacing:0.6px}
+    .card-number{font-family: "Courier New", monospace; font-size:20px; letter-spacing:2px;}
+    .card-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .card-small{font-size:12px;color:rgba(255,255,255,0.68)}
+
+    /* form controls */
+    .controls{
+      margin-top:6px;
+      display:grid;
+      gap:12px;
+      grid-template-columns:repeat(2, 1fr);
+    }
+    @media (max-width:520px){
+      .controls{grid-template-columns: 1fr}
+      .card-preview{max-width:100%;height:200px}
+    }
+
+    label{font-size:12px;color:var(--muted)}
+    select,input[type="text"],input[type="number"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border: 1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02);
+      color: #eaf6ff;
+      outline:none;
+      font-size:14px;
+    }
+    .row{display:flex;gap:10px}
+    .row .col{flex:1}
+
+    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    button{
+      padding:10px 14px;border-radius:10px;border:0;cursor:pointer;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:#021017;font-weight:600;
+      box-shadow: 0 8px 20px rgba(155,89,255,0.12);
+    }
+    .btn-ghost{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+    }
+
+    .disclaimer{
+      margin-top:10px;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,0,0,0.04), rgba(255,255,255,0.01));
+      color:#ffdede;font-size:13px;border:1px solid rgba(255,0,0,0.06);
+    }
+
+    .right {width:420px;max-width:100%}
+    .meta{display:grid;gap:10px}
+    .meta .panel{padding:14px}
+
+    .output-json{white-space:pre-wrap;font-family:monospace;font-size:13px;background:var(--glass);padding:10px;border-radius:8px; color: #d8fbff; overflow:auto; max-height:220px}
+
+    .small-muted{font-size:12px;color:var(--muted)}
+    .footer-note{margin-top:10px;font-size:12px;color:var(--muted)}
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Futuristic Credit Card</h1>
-        <p id="bank-name">Bank Name</p>
-        <p id="card-number">Card Number</p>
-        <p id="expiry-date">Expiry Date</p>
-        <p id="cvv">CVV</p>
-        <p id="client-name">Client Name</p>
-        <p id="client-address">Client Address</p>
-        <button onclick="generateCreditCard()">Generate Credit Card</button>
-        <button onclick="copyCreditCard()">Copy Credit Card</button>
+  <div class="container">
+    <div class="left panel">
+      <div class="heading">
+        <div class="logo-dot">FC</div>
+        <div>
+          <h1>Futuristic Credit Card Generator</h1>
+          <p class="lead">Dev / UI testing tool — Luhn-valid numbers, card-type aware</p>
+        </div>
+      </div>
+
+      <div class="card-preview" id="cardPreview" aria-live="polite">
+        <div class="card-top">
+          <div class="chip" aria-hidden="true"></div>
+          <div class="card-brand" id="previewBank">BANK NAME</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
+          <div class="card-row">
+            <div>
+              <div class="card-small">Cardholder</div>
+              <div id="previewHolder">FULL NAME</div>
+            </div>
+            <div>
+              <div class="card-small">Expiry</div>
+              <div id="previewExpiry">MM/YY</div>
+            </div>
+            <div>
+              <div class="card-small">CVV</div>
+              <div id="previewCvv">•••</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-small">Futuristic Generator • Dev Only</div>
+          <div class="card-small">ID: <span id="previewId">—</span></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="bankSelect">Bank / Issuer</label>
+          <select id="bankSelect" aria-label="Select bank">
+            <option>ABSA</option>
+            <option>Nedbank</option>
+            <option>Standard Bank</option>
+            <option>FNB</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="typeSelect">Card Type</label>
+          <select id="typeSelect" aria-label="Select card type">
+            <option value="visa">Visa (16)</option>
+            <option value="mastercard">Mastercard (16)</option>
+            <option value="amex">Amex (15)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="binInput">BIN / Prefix (optional)</label>
+          <input id="binInput" type="text" placeholder="e.g. 424242 or 3782" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+
+        <div>
+          <label for="yearsAhead">Expiry window (years)</label>
+          <select id="yearsAhead" aria-label="Expiry years ahead">
+            <option value="3">3 years</option>
+            <option value="5" selected>5 years</option>
+            <option value="1">1 year</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <div class="btns">
+          <button id="genBtn">Generate Card</button>
+          <button id="copyBtn" class="btn-ghost">Copy JSON</button>
+          <button id="downloadBtn" class="btn-ghost">Download JSON</button>
+          <button id="maskBtn" class="btn-ghost">Toggle Mask</button>
+        </div>
+      </div>
+
+      <div class="disclaimer" role="note">
+        <strong>DEVELOPMENT / TEST ONLY</strong> — This tool generates syntactically valid test card data (Luhn valid). Do not use generated cards for real transactions. Use responsibly and only on test/sandbox payment endpoints.
+      </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/faker/5.5.3/faker.min.js"></script>
-    <script>
-        let creditCardInfo;
+    <div class="right">
+      <div class="panel meta">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><strong class="small-muted">Generated data (preview)</strong></div>
+            <div class="small-muted" style="font-size:12px">Status: <span id="status">idle</span></div>
+          </div>
 
-        function generateCreditCard() {
-            const bankNames = ["ABSA", "Nedbank", "Standard Bank", "FNB"];
-            const bankName = faker.random.arrayElement(bankNames);
-            const cardNumber = faker.finance.creditCardNumber();
-            const expiryDate = faker.date.future().toISOString().split('T')[0];
-            const cvv = faker.random.number({min: 100, max: 999});
-            const clientName = faker.name.findName();
-            const clientAddress = faker.address.streetAddress();
+          <div style="margin-top:8px" class="output-json" id="jsonOutput">
+            {/* JSON preview will appear here */}
+          </div>
 
-            creditCardInfo = {
-                bankName,
-                cardNumber,
-                expiryDate,
-                cvv,
-                clientName,
-                clientAddress
-            };
+          <div class="footer-note">Use "Validate" to check any supplied card number for Luhn validity.</div>
+        </div>
 
-            document.getElementById("bank-name").textContent = `Bank Name: ${creditCardInfo.bankName}`;
-            document.getElementById("card-number").textContent = `Card Number: ${creditCardInfo.cardNumber}`;
-            document.getElementById("expiry-date").textContent = `Expiry Date: ${creditCardInfo.expiryDate}`;
-            document.getElementById("cvv").textContent = `CVV: ${creditCardInfo.cvv}`;
-            document.getElementById("client-name").textContent = `Client Name: ${creditCardInfo.clientName}`;
-            document.getElementById("client-address").textContent = `Client Address: ${creditCardInfo.clientAddress}`;
-        }
+        <div class="panel">
+          <label for="manualNumber">Validate a number / paste test card:</label>
+          <input id="manualNumber" placeholder="Paste card number to validate" inputmode="numeric" />
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="validateBtn" class="btn-ghost">Validate</button>
+            <button id="formatBtn" class="btn-ghost">Format</button>
+            <button id="useAsSeedBtn" class="btn-ghost">Use as BIN seed</button>
+          </div>
+          <div style="margin-top:10px" id="manualResult" class="small-muted">No check yet.</div>
+        </div>
 
-        function copyCreditCard() {
-            if (!creditCardInfo) {
-                alert("Please generate a credit card first.");
-                return;
-            }
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong class="small-muted">Developer Notes</strong></div>
+            <div class="small-muted">Ready for GitHub</div>
+          </div>
+          <ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
+            <li>All logic client-side; no external libs required.</li>
+            <li>Copy & Download produce JSON; toggle mask for UI testing.</li>
+            <li>Adjust BIN prefix to generate specific test patterns.</li>
+          </ul>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="printBtn" class="btn-ghost">Print Preview</button>
+            <button id="resetBtn" class="btn-ghost">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            navigator.clipboard.writeText(JSON.stringify(creditCardInfo)).then(() => {
-                alert("Credit card copied successfully!");
-            }).catch((error) => {
-                console.error("Failed to copy credit card:", error);
-                alert("Failed to copy credit card.");
-            });
-        }
-    </script>
+<script>
+/* Utilities: Luhn, random helpers, formatting.
+   All generation is client-side and deterministic using Math.random.
+   NOTE: DO NOT use generated cards for real transactions. Dev/test only.
+*/
+
+function luhnCheck(cardNumber) {
+  // remove non-digits
+  const digits = cardNumber.replace(/\D/g, '').split('').map(d => parseInt(d, 10));
+  let sum = 0;
+  let double = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = digits[i];
+    if (double) {
+      d = d * 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+    double = !double;
+  }
+  return sum % 10 === 0;
+}
+
+// generate Luhn check digit for partial number (string of digits)
+function luhnGenerateCheckDigit(partial) {
+  const digits = partial.replace(/\D/g, '').split('').map(d => parseInt(d, 10));
+  let sum = 0;
+  let double = true; // when computing check digit we act as if an extra digit will be appended (so start double true)
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = digits[i];
+    if (double) {
+      d = d * 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+    double = !double;
+  }
+  const mod = sum % 10;
+  const check = mod === 0 ? 0 : (10 - mod);
+  return String(check);
+}
+
+function generateRandomDigits(length) {
+  let s = '';
+  for (let i=0;i<length;i++){ s += String(Math.floor(Math.random()*10)); }
+  return s;
+}
+
+function formatCardNumber(number) {
+  const digits = number.replace(/\D/g,'');
+  if (digits.length === 15) { // Amex style 4-6-5
+    return digits.replace(/(\d{4})(\d{6})(\d{5})/, '$1 $2 $3');
+  }
+  return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+}
+
+function randBetween(min, max) {
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+/* Card rules for types */
+const CARD_TYPES = {
+  visa: { name: 'Visa', lengths: [16], prefixes: ['4'], cvvLen: 3 },
+  mastercard: { name: 'Mastercard', lengths: [16], prefixes: ['51','52','53','54','55','2221','2720'], cvvLen:3 },
+  amex: { name: 'American Express', lengths: [15], prefixes: ['34','37'], cvvLen:4 }
+};
+
+function generateCardNumberFor(binPrefix, desiredLength) {
+  // binPrefix: string of digits (may be empty)
+  const clean = (binPrefix || '').replace(/\D/g,'');
+  const needed = desiredLength - clean.length - 1; // leave room for check digit
+  const body = clean + generateRandomDigits(Math.max(0, needed));
+  const check = luhnGenerateCheckDigit(body);
+  return (body + check);
+}
+
+function genExpiry(yearsAhead) {
+  const month = randBetween(1,12);
+  const year = new Date().getFullYear() + randBetween(1, parseInt(yearsAhead,10));
+  return String(month).padStart(2,'0') + '/' + String(year).slice(-2);
+}
+
+function genCvv(len) {
+  let s='';
+  for (let i=0;i<len;i++) s += String(Math.floor(Math.random()*10));
+  return s;
+}
+
+/* UI binding and actions */
+const previewNumberEl = document.getElementById('previewNumber');
+const previewHolderEl = document.getElementById('previewHolder');
+const previewExpiryEl = document.getElementById('previewExpiry');
+const previewCvvEl = document.getElementById('previewCvv');
+const previewBankEl = document.getElementById('previewBank');
+const previewIdEl = document.getElementById('previewId');
+const jsonOutputEl = document.getElementById('jsonOutput');
+const statusEl = document.getElementById('status');
+
+let lastGenerated = null;
+let masked = false;
+
+function updatePreview(info){
+  previewBankEl.textContent = info.bank;
+  previewHolderEl.textContent = info.holder;
+  previewExpiryEl.textContent = info.expiry;
+  previewCvvEl.textContent = masked ? '•'.repeat(info.cvv.length) : info.cvv;
+  previewNumberEl.textContent = masked ? maskNumber(info.number) : formatCardNumber(info.number);
+  previewIdEl.textContent = info.id;
+  jsonOutputEl.textContent = JSON.stringify(info, null, 2);
+}
+
+function maskNumber(num){
+  const digits = num.replace(/\D/g,'');
+  if (digits.length <= 4) return digits;
+  const last4 = digits.slice(-4);
+  return '•••• •••• •••• ' + last4;
+}
+
+function generateCreditCard(){
+  const bank = document.getElementById('bankSelect').value || 'ISSUER';
+  const typeKey = document.getElementById('typeSelect').value;
+  const bin = document.getElementById('binInput').value.trim();
+  const years = document.getElementById('yearsAhead').value || '3';
+  const typeInfo = CARD_TYPES[typeKey] || CARD_TYPES.visa;
+  const length = typeInfo.lengths[0];
+  // If user provided a BIN that doesn't match type, still allow generation but warn
+  let binClean = (bin || '').replace(/\D/g,'');
+  if (binClean.length > 0 && binClean.length >= length) {
+    // too long: trim
+    binClean = binClean.slice(0, length-1);
+  }
+  // Attempt using provided bin; else use a random known prefix for card type
+  let chosenPrefix = binClean;
+  if (!chosenPrefix) {
+    // pick one of the known prefixes for type
+    const pool = typeInfo.prefixes;
+    const p = pool[Math.floor(Math.random()*pool.length)];
+    chosenPrefix = p;
+  }
+  const number = generateCardNumberFor(chosenPrefix, length);
+  const expiry = genExpiry(years);
+  const cvv = genCvv(typeInfo.cvvLen || 3);
+  const holder = generateRandomName();
+  const id = 'DEV-' + Math.random().toString(36).slice(2,10).toUpperCase();
+
+  const info = {
+    id,
+    bank,
+    type: typeInfo.name,
+    number,
+    formatted: formatCardNumber(number),
+    masked: maskNumber(number),
+    expiry,
+    cvv,
+    holder,
+    generatedAt: new Date().toISOString()
+  };
+
+  lastGenerated = info;
+  statusEl.textContent = 'generated';
+  updatePreview(info);
+  return info;
+}
+
+function generateRandomName(){
+  // lightweight random name generator (keeps it client-side)
+  const first = ["Aiden","Maya","Sam","Liam","Zola","Anele","Sibusiso","Ruth","Cedric","Nina","Thabo","Lerato"];
+  const last = ["Mkhize","Pillay","Smith","Jones","Pretorius","Muller","Brown","Ngwenya","Naidoo","Dlamini"];
+  return first[randBetween(0,first.length-1)] + ' ' + last[randBetween(0,last.length-1)];
+}
+
+/* Buttons */
+document.getElementById('genBtn').addEventListener('click', ()=>{
+  try{
+    const info = generateCreditCard();
+    statusEl.textContent = 'OK';
+    // show masked by default on mobile
+    const small = window.innerWidth <= 520;
+    if (small) masked = true;
+    updatePreview(info);
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = 'error';
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  if (!lastGenerated){ alert('Generate a card first'); return; }
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(lastGenerated, null, 2));
+    alert('Card JSON copied to clipboard (dev/test only).');
+  }catch(e){
+    console.error(e);
+    alert('Could not copy — your browser may block clipboard access.');
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  if (!lastGenerated){ alert('Generate a card first'); return; }
+  const blob = new Blob([JSON.stringify(lastGenerated, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (lastGenerated.id || 'card') + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('maskBtn').addEventListener('click', ()=>{
+  masked = !masked;
+  if (!lastGenerated) return;
+  updatePreview(lastGenerated);
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  lastGenerated = null;
+  masked = false;
+  previewBankEl.textContent = 'BANK NAME';
+  previewHolderEl.textContent = 'FULL NAME';
+  previewExpiryEl.textContent = 'MM/YY';
+  previewNumberEl.textContent = '•••• •••• •••• ••••';
+  previewCvvEl.textContent = '•••';
+  previewIdEl.textContent = '—';
+  jsonOutputEl.textContent = '';
+  statusEl.textContent = 'idle';
+});
+
+/* Manual validation area */
+document.getElementById('validateBtn').addEventListener('click', ()=>{
+  const v = document.getElementById('manualNumber').value.trim();
+  if (!v) { document.getElementById('manualResult').textContent = 'Paste a number to validate.'; return; }
+  const ok = luhnCheck(v);
+  document.getElementById('manualResult').textContent = ok ? 'Luhn valid ✓ (passes checksum)' : 'Invalid ✕ (fails Luhn checksum)';
+  document.getElementById('manualResult').style.color = ok ? '#c6ffd8' : '#ffd6d6';
+});
+
+document.getElementById('formatBtn').addEventListener('click', ()=>{
+  const v = document.getElementById('manualNumber').value.trim();
+  if (!v) return;
+  document.getElementById('manualNumber').value = formatCardNumber(v);
+});
+
+document.getElementById('useAsSeedBtn').addEventListener('click', ()=>{
+  const v = document.getElementById('manualNumber').value.replace(/\s/g,'').trim();
+  if (!v) return alert('Paste a number first to use as seed/BIN.');
+  // Use first up-to-6 digits as BIN
+  const seed = v.slice(0,6);
+  document.getElementById('binInput').value = seed;
+  alert('BIN seed set to ' + seed);
+});
+
+/* Print preview */
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  window.print();
+});
+
+/* Simple initialization */
+(function init(){
+  // Seed preview
+  previewNumberEl.textContent = '•••• •••• •••• ••••';
+  statusEl.textContent = 'ready';
+})();
+</script>
 </body>
 </html>
