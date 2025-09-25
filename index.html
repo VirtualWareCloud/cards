@@ -1,33 +1,293 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Employee Access Card - Cedric Naidoo</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  body { background:#f3f6fb; font-family: Arial, sans-serif; padding:30px; }
-  .card { width:1000px; max-width:100%; margin:0 auto; box-shadow:0 6px 24px rgba(10,10,20,0.2); }
-  img { display:block; width:100%; height:auto; }
-  .meta { padding:12px 18px; background:#fff; }
-  .meta h1 { margin:0; font-size:22px; }
-  .meta p { margin:6px 0; color:#333; }
-  @media print {
-    body { padding:0; }
-    .card { box-shadow:none; }
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Card Generator — VirtualWareCloud</title>
+  <meta name="description" content="Very simple credit card generator (dev/test). Big buttons, minimal UI. Includes native Share button." />
+  <style>
+    /* MOBILE-FIRST simple UI with a Share button */
+    :root{
+      --bg: #041018;
+      --card-bg: linear-gradient(135deg,#07212a,#0e2a36);
+      --accent: #00e5ff;
+      --accent2: #8a6bff;
+      --muted: rgba(255,255,255,0.72);
+      --radius: 14px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+    html,body{height:100%;margin:0}
+    body{
+      background: var(--bg);
+      color: #e9fbff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:420px;
+      background: rgba(255,255,255,0.02);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .heading{ text-align:center; margin-bottom:8px }
+    .heading h1{ margin:0; font-size:18px; letter-spacing:0.4px }
+    .heading p{ margin:6px 0 14px; color:var(--muted); font-size:13px }
+
+    /* Card preview */
+    .card{
+      background: var(--card-bg);
+      border-radius:12px;
+      padding:16px;
+      color:#eaf7ff;
+      margin-bottom:16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px }
+    .chip { width:48px; height:34px; border-radius:6px; background:linear-gradient(180deg,#bdbdbd,#7c7c7c); }
+    .card-number{ font-family: "Courier New", monospace; font-size:20px; letter-spacing:2px; margin-bottom:10px; word-break:break-word }
+    .card-row{ display:flex; justify-content:space-between; gap:10px; font-size:13px }
+    .muted{ color:var(--muted) }
+
+    /* Controls */
+    label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px }
+    select{ width:100%; padding:12px; border-radius:10px; border:0; font-size:16px; background:rgba(255,255,255,0.02); color:white; margin-bottom:12px; outline:none }
+    .controls-row{ display:flex; gap:10px; align-items:center; }
+    .control-btn{
+      flex:1;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px;
+      font-size:16px;
+      font-weight:700;
+      border-radius:12px;
+      border:0;
+      cursor:pointer;
+      color:#01202a;
+    }
+    .generate{
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 24px rgba(138,107,255,0.12);
+    }
+    .share{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .share svg{ width:18px; height:18px; fill:currentColor; opacity:0.95 }
+
+    .note { font-size:12px; color:var(--muted); margin-top:12px; text-align:center }
+    /* Accessibility: focus states */
+    select:focus, button:focus { outline: 3px solid rgba(0,229,255,0.12); outline-offset:2px; }
+
+    /* Very large on extra small screens */
+    @media (max-width:360px){
+      .card-number{ font-size:18px }
+      .control-btn{ padding:14px; font-size:15px }
+    }
+  </style>
 </head>
 <body>
-  <div class="card">
-    <img src="/cedric_naidoo.png" alt="Access Card - Cedric Naidoo" loading="lazy" decoding="async">
-    <div class="meta">
-      <h1>VirtualWareCloud — Cedric Naidoo</h1>
-      <p><strong>Position:</strong> Software Engineer</p>
-      <p><strong>Phone:</strong> +27 82 555 1234</p>
-      <p><strong>Email:</strong> cedric.naidoo@example.com</p>
-      <p><strong>Address:</strong> Beach Road, Sea Point, Cape Town, 8060, South Africa</p>
-      <p><strong>Employee ID:</strong> VWC-021</p>
+  <div class="wrap" role="application" aria-label="Simple card generator with share">
+    <div class="heading">
+      <h1>Simple Card Generator</h1>
+      <p>Choose Bank → Tap GENERATE → Tap SHARE</p>
     </div>
+
+    <div class="card" aria-live="polite" id="cardPreview">
+      <div class="card-top">
+        <div class="chip" aria-hidden="true"></div>
+        <div class="muted" id="previewBankSmall">BANK</div>
+      </div>
+
+      <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
+
+      <div class="card-row">
+        <div>
+          <div class="muted" style="font-size:11px">Cardholder</div>
+          <div id="previewHolder">FULL NAME</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:11px">Expiry</div>
+          <div id="previewExpiry">MM/YY</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:11px">CVV</div>
+          <div id="previewCvv">•••</div>
+        </div>
+      </div>
+    </div>
+
+    <label for="bankSelectSimple">Bank</label>
+    <select id="bankSelectSimple" aria-label="Select bank">
+      <option value="ABSA">ABSA</option>
+      <option value="Nedbank">Nedbank</option>
+      <option value="Standard Bank">Standard Bank</option>
+      <option value="FNB">FNB</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <div class="controls-row">
+      <button class="control-btn generate" id="generateBtn" aria-label="Generate card">
+        GENERATE
+      </button>
+
+      <button class="control-btn share" id="shareBtn" aria-label="Share card">
+        <!-- Minimal share icon (inline SVG) -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M15 8a3 3 0 1 0-2.83-4H8a1 1 0 0 0-1 1v3.17A3 3 0 1 0 9.17 13H16a1 1 0 0 0 1-1V9.83A3 3 0 0 0 15 8zm-7 8a3 3 0 1 0 2.83 4H16a1 1 0 0 0 1-1v-3.17A3 3 0 1 0 14.83 11H8a1 1 0 0 0-1 1v3.17A3 3 0 0 0 8 16z"/>
+        </svg>
+        SHARE
+      </button>
+    </div>
+
+    <div class="note"><strong>Dev/test only:</strong> generated numbers are synthetic & Luhn-valid. Do not use for real payments.</div>
   </div>
+
+<script>
+/* --- Minimal Luhn/card generator + Share button --- */
+
+/* Utility: generate a Luhn check digit for a partial numeric string */
+function luhnGenerateCheckDigit(partial) {
+  const digits = partial.replace(/\D/g,'').split('').map(d=>parseInt(d,10));
+  let sum = 0; let double = true;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = digits[i];
+    if (double) { d = d * 2; if (d > 9) d -= 9; }
+    sum += d; double = !double;
+  }
+  const mod = sum % 10; return String(mod === 0 ? 0 : (10 - mod));
+}
+function generateDigits(n){ let s=''; for(let i=0;i<n;i++) s += String(Math.floor(Math.random()*10)); return s; }
+function formatNum(n){ return n.replace(/(\d{4})(?=\d)/g,'$1 ').trim(); }
+
+/* Simple name generator */
+function randomName(){
+  const first = ["Maya","Sam","Liam","Zola","Anele","Ruth","Cedric","Nina","Thabo"];
+  const last = ["Mkhize","Smith","Jones","Naidoo","Dlamini"];
+  return first[Math.floor(Math.random()*first.length)] + ' ' + last[Math.floor(Math.random()*last.length)];
+}
+
+/* Bank -> BIN small mapping for variety (Visa-like prefixes) */
+const BANK_BINS = {
+  "ABSA": "402400",
+  "Nedbank": "453200",
+  "Standard Bank": "471600",
+  "FNB": "438857",
+  "Other": "424242"
+};
+
+function generateCardNumber(binPrefix){
+  const clean = (binPrefix||'').replace(/\D/g,'');
+  const length = 16;
+  const needed = length - clean.length - 1;
+  const body = clean + generateDigits(Math.max(0,needed));
+  const check = luhnGenerateCheckDigit(body);
+  return body + check;
+}
+
+/* DOM refs */
+const bankSelect = document.getElementById('bankSelectSimple');
+const previewNumber = document.getElementById('previewNumber');
+const previewHolder = document.getElementById('previewHolder');
+const previewExpiry = document.getElementById('previewExpiry');
+const previewCvv = document.getElementById('previewCvv');
+const previewBankSmall = document.getElementById('previewBankSmall');
+
+let lastCard = null;
+
+/* Generate button */
+document.getElementById('generateBtn').addEventListener('click', function(){
+  const bank = bankSelect.value || 'Bank';
+  const bin = BANK_BINS[bank] || '424242';
+  const number = generateCardNumber(bin);
+  const formatted = formatNum(number);
+  // expiry next 1-4 years
+  const month = String(Math.floor(Math.random()*12)+1).padStart(2,'0');
+  const year = String(new Date().getFullYear() + (Math.floor(Math.random()*4)+1)).slice(-2);
+  const expiry = month + '/' + year;
+  const cvv = String(Math.floor(Math.random()*900)+100);
+  const holder = randomName();
+
+  // update UI
+  previewNumber.textContent = formatted;
+  previewHolder.textContent = holder;
+  previewExpiry.textContent = expiry;
+  previewCvv.textContent = cvv;
+  previewBankSmall.textContent = bank;
+
+  lastCard = {
+    bank, number, formatted, expiry, cvv, holder,
+    generatedAt: new Date().toISOString()
+  };
+});
+
+/* Share button: uses Web Share API if available, else fallback to copy+mailto (friendly) */
+document.getElementById('shareBtn').addEventListener('click', async function(){
+  if (!lastCard) {
+    alert('Please generate a card first (tap GENERATE).');
+    return;
+  }
+
+  // Compose a short shareable text
+  const text = [
+    `Dev Card — ${lastCard.bank}`,
+    `Cardholder: ${lastCard.holder}`,
+    `Number: ${lastCard.formatted}`,
+    `Expiry: ${lastCard.expiry}`,
+    `CVV: ${lastCard.cvv}`,
+    '',
+    `Note: dev/test only — not for real payments.`
+  ].join('\n');
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Dev Card (VirtualWareCloud)',
+        text
+      });
+      // on success, do nothing more
+    } catch (err) {
+      // If user cancels or an error happens, fallback to copy
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Share canceled or failed — card details copied to clipboard as fallback.');
+      } catch (e) {
+        alert('Share failed and copy fallback failed.');
+      }
+    }
+  } else {
+    // Fallback: copy to clipboard + open mail client if possible
+    try {
+      await navigator.clipboard.writeText(text);
+      const mailto = `mailto:?subject=${encodeURIComponent('Dev Card (VirtualWareCloud)')}&body=${encodeURIComponent(text)}`;
+      // open mail client in new tab/window (will prompt)
+      window.open(mailto, '_blank');
+      alert('Card details copied to clipboard and your mail client was opened as a fallback.');
+    } catch (e) {
+      // Last resort: show the text in a simple dialog
+      alert('Native sharing not available. Here are the card details:\n\n' + text);
+    }
+  }
+});
+
+/* Initialize with a default generated card for immediate visibility */
+(function init(){
+  // pre-generate once so the UI is not empty
+  document.getElementById('generateBtn').click();
+})();
+</script>
 </body>
 </html>
