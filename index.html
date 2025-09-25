@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Credit Card Generator</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .card {
+            width: 300px;
+            height: 200px;
+            background-color: #ff6666;
+            border-radius: 10px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .card h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .card p {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Futuristic Credit Card</h1>
+        <p id="bank-name">Bank Name</p>
+        <p id="card-number">Card Number</p>
+        <p id="expiry-date">Expiry Date</p>
+        <p id="cvv">CVV</p>
+        <p id="client-name">Client Name</p>
+        <p id="client-address">Client Address</p>
+        <button onclick="generateCreditCard()">Generate Credit Card</button>
+        <button onclick="copyCreditCard()">Copy Credit Card</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/faker/5.5.3/faker.min.js"></script>
+    <script>
+        let creditCardInfo;
+
+        function generateCreditCard() {
+            const bankNames = ["ABSA", "Nedbank", "Standard Bank", "FNB"];
+            const bankName = faker.random.arrayElement(bankNames);
+            const cardNumber = faker.finance.creditCardNumber();
+            const expiryDate = faker.date.future().toISOString().split('T')[0];
+            const cvv = faker.random.number({min: 100, max: 999});
+            const clientName = faker.name.findName();
+            const clientAddress = faker.address.streetAddress();
+
+            creditCardInfo = {
+                bankName,
+                cardNumber,
+                expiryDate,
+                cvv,
+                clientName,
+                clientAddress
+            };
+
+            document.getElementById("bank-name").textContent = `Bank Name: ${creditCardInfo.bankName}`;
+            document.getElementById("card-number").textContent = `Card Number: ${creditCardInfo.cardNumber}`;
+            document.getElementById("expiry-date").textContent = `Expiry Date: ${creditCardInfo.expiryDate}`;
+            document.getElementById("cvv").textContent = `CVV: ${creditCardInfo.cvv}`;
+            document.getElementById("client-name").textContent = `Client Name: ${creditCardInfo.clientName}`;
+            document.getElementById("client-address").textContent = `Client Address: ${creditCardInfo.clientAddress}`;
+        }
+
+        function copyCreditCard() {
+            if (!creditCardInfo) {
+                alert("Please generate a credit card first.");
+                return;
+            }
+
+            navigator.clipboard.writeText(JSON.stringify(creditCardInfo)).then(() => {
+                alert("Credit card copied successfully!");
+            }).catch((error) => {
+                console.error("Failed to copy credit card:", error);
+                alert("Failed to copy credit card.");
+            });
+        }
+    </script>
+</body>
+</html>
