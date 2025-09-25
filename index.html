@@ -6,6 +6,7 @@
   <title>Futuristic Credit Card Generator — Dev / Test</title>
   <meta name="description" content="Futuristic Credit Card Generator for development & UI testing (Luhn valid). For dev/test only." />
   <style>
+    /* MOBILE-FIRST, responsive modern UI */
     :root{
       --bg:#071017;
       --panel:#0e1720;
@@ -13,53 +14,54 @@
       --accent2:#9b59ff;
       --glass: rgba(255,255,255,0.04);
       --muted: rgba(255,255,255,0.6);
-      --card-w: 380px;
-      --card-h: 240px;
-      --radius: 18px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --radius: 14px;
+      --touch: 48px; /* recommended min touch size */
+      --card-max-w: 520px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color-scheme: dark;
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%;margin:0}
     body{
-      margin:0;
-      min-height:100%;
       background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(155,89,255,0.06), transparent 6%),
-        radial-gradient(900px 500px at 90% 90%, rgba(0,229,255,0.04), transparent 8%),
+        radial-gradient(900px 420px at 6% 8%, rgba(155,89,255,0.04), transparent 6%),
+        radial-gradient(700px 360px at 92% 92%, rgba(0,229,255,0.03), transparent 8%),
         var(--bg);
       color:#eaf6ff;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      padding:16px;
       display:flex;
-      align-items:center;
       justify-content:center;
-      padding:28px;
-      gap:24px;
+      align-items:flex-start;
+      gap:16px;
+      min-height:100vh;
     }
 
-    .container{
+    .shell{
       width:100%;
       max-width:1200px;
       display:grid;
-      grid-template-columns: 1fr 460px;
-      gap:28px;
+      grid-template-columns: 1fr 420px;
+      gap:20px;
       align-items:start;
     }
 
-    /* responsive */
+    /* Break to single-column on narrower screens */
     @media (max-width:980px){
-      .container{grid-template-columns:1fr; padding-bottom: 32px}
+      .shell{grid-template-columns:1fr; padding-bottom: 36px}
     }
 
     .panel{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.012));
-      border-radius:14px;
-      padding:18px;
-      box-shadow: 0 10px 30px rgba(2,6,12,0.6);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow: 0 12px 30px rgba(2,6,12,0.6);
       border: 1px solid rgba(255,255,255,0.03);
     }
 
+    /* Left column content */
     .left .heading{
       display:flex;
       gap:12px;
@@ -67,61 +69,56 @@
       margin-bottom:12px;
     }
     .logo-dot{
-      width:44px;height:44px;border-radius:12px;
+      width:44px;height:44px;border-radius:10px;
       background: linear-gradient(135deg,var(--accent1),var(--accent2));
       display:flex;align-items:center;justify-content:center;
       font-weight:700;color:#021017; font-size:16px;
       box-shadow: 0 6px 18px rgba(155,89,255,0.12), 0 4px 8px rgba(0,229,255,0.06);
     }
-    h1{font-size:20px;margin:0}
+    h1{font-size:18px;margin:0}
     p.lead {margin:0;color:var(--muted);font-size:13px}
 
-    /* card preview */
+    /* Card preview adapts to width */
     .card-preview{
       width:100%;
-      max-width:var(--card-w);
-      height:var(--card-h);
-      border-radius:var(--radius);
-      padding:20px;
+      max-width:var(--card-max-w);
+      height: clamp(180px, 25vw, 240px);
+      border-radius:14px;
+      padding:18px;
       position:relative;
       overflow:hidden;
       background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.03);
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      gap:6px;
-      margin-bottom:14px;
-    }
-
-    .chip {
-      width:56px;height:40px;border-radius:6px;background:linear-gradient(180deg,#bdbdbd,#7c7c7c);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      gap:8px;
+      margin-bottom:12px;
+      border:1px solid rgba(255,255,255,0.03);
     }
 
     .card-top{display:flex;justify-content:space-between;align-items:center}
-    .card-brand{font-weight:700;letter-spacing:0.6px}
-    .card-number{font-family: "Courier New", monospace; font-size:20px; letter-spacing:2px;}
+    .chip { width:48px;height:34px;border-radius:6px;background:linear-gradient(180deg,#bdbdbd,#7c7c7c); }
+    .card-brand{font-weight:700;font-size:13px}
+    .card-number{font-family: "Courier New", monospace; font-size:clamp(16px, 2.4vw, 20px); letter-spacing:2px;}
     .card-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
     .card-small{font-size:12px;color:rgba(255,255,255,0.68)}
 
-    /* form controls */
+    /* Controls - make them flexible and stack on smaller screens */
     .controls{
       margin-top:6px;
       display:grid;
       gap:12px;
-      grid-template-columns:repeat(2, 1fr);
+      grid-template-columns: repeat(2, 1fr);
     }
     @media (max-width:520px){
       .controls{grid-template-columns: 1fr}
-      .card-preview{max-width:100%;height:200px}
+      .card-preview{max-width:100%}
     }
 
-    label{font-size:12px;color:var(--muted)}
-    select,input[type="text"],input[type="number"],textarea{
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="text"],select,textarea{
       width:100%;
-      padding:10px 12px;
+      padding:12px 12px;
       border-radius:10px;
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(255,255,255,0.02);
@@ -129,16 +126,18 @@
       outline:none;
       font-size:14px;
     }
-    textarea{min-height:72px;resize:vertical}
+    textarea{min-height:76px;resize:vertical}
     .row{display:flex;gap:10px}
     .row .col{flex:1}
 
-    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     button{
+      min-height:var(--touch);
       padding:10px 14px;border-radius:10px;border:0;cursor:pointer;
       background:linear-gradient(90deg,var(--accent1),var(--accent2));
-      color:#021017;font-weight:600;
-      box-shadow: 0 8px 20px rgba(155,89,255,0.12);
+      color:#021017;font-weight:650;
+      box-shadow: 0 8px 24px rgba(155,89,255,0.08);
+      font-size:14px;
     }
     .btn-ghost{
       background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
@@ -149,32 +148,38 @@
       color:#ffdede;font-size:13px;border:1px solid rgba(255,0,0,0.06);
     }
 
-    .right {width:460px;max-width:100%}
+    /* Right column */
+    .right {width:100%;max-width:100%}
     .meta{display:grid;gap:10px}
     .meta .panel{padding:14px}
-
-    .output-json{white-space:pre-wrap;font-family:monospace;font-size:13px;background:var(--glass);padding:10px;border-radius:8px; color: #d8fbff; overflow:auto; max-height:220px}
+    .output-json{white-space:pre-wrap;font-family:monospace;font-size:13px;background:var(--glass);padding:10px;border-radius:8px;color:#d8fbff;overflow:auto;max-height:240px}
 
     .small-muted{font-size:12px;color:var(--muted)}
     .footer-note{margin-top:10px;font-size:12px;color:var(--muted)}
 
-    /* client details window */
+    /* client window */
     .client-window{
-      margin-top:12px;
+      margin-top:8px;
       background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
       border-radius:10px;
       padding:12px;
       border:1px solid rgba(255,255,255,0.02);
-      font-size:13px;
-      color:var(--muted);
+      font-size:14px;color:var(--muted);
     }
     .client-window strong{color:#fff;font-weight:700}
-    footer.signature{margin-top:16px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;align-items:center}
+
+    /* Footer signature */
+    footer.signature{margin-top:14px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
     footer.signature a{color:var(--accent1);text-decoration:none;font-weight:600}
+
+    /* small helpers */
+    .muted { color: var(--muted); }
+    .space-top { margin-top:10px; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="shell">
+    <!-- LEFT column -->
     <div class="left panel">
       <div class="heading">
         <div class="logo-dot">FC</div>
@@ -190,7 +195,7 @@
           <div class="card-brand" id="previewBank">BANK NAME</div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:6px;">
+        <div>
           <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
           <div class="card-row">
             <div>
@@ -214,14 +219,15 @@
         </div>
       </div>
 
-      <!-- Client window below card -->
+      <!-- client details panel -->
       <div class="client-window" id="clientWindow">
         <div><strong>Client:</strong> <span id="clientNameDisplay">—</span></div>
-        <div style="margin-top:6px"><strong>Address:</strong> <span id="clientAddressDisplay">—</span></div>
-        <div style="margin-top:6px"><strong>Phone:</strong> <a id="clientPhoneDisplay" href="#" style="color:var(--accent1);text-decoration:none">—</a></div>
+        <div style="margin-top:8px"><strong>Address:</strong> <span id="clientAddressDisplay">—</span></div>
+        <div style="margin-top:8px"><strong>Phone:</strong> <a id="clientPhoneDisplay" href="#" style="color:var(--accent1);text-decoration:none">—</a></div>
       </div>
 
-      <div class="controls" style="margin-top:12px">
+      <!-- Controls -->
+      <div class="controls space-top" role="form" aria-label="card generation controls">
         <div>
           <label for="bankSelect">Bank / Issuer</label>
           <select id="bankSelect" aria-label="Select bank">
@@ -256,7 +262,7 @@
           </select>
         </div>
 
-        <!-- Client inputs -->
+        <!-- client inputs -->
         <div style="grid-column: 1 / -1;">
           <label for="clientName">Client full name</label>
           <input id="clientName" placeholder="e.g. Jane Doe" />
@@ -269,18 +275,15 @@
           <label for="clientPhone">Client phone</label>
           <input id="clientPhone" placeholder="+27 82 000 0000" inputmode="tel" />
         </div>
-
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-        <div class="btns">
-          <button id="genBtn">Generate Card</button>
-          <button id="copyBtn" class="btn-ghost">Copy JSON</button>
-          <button id="copyTextBtn" class="btn-ghost">Copy Text</button>
-          <button id="downloadBtn" class="btn-ghost">Download JSON</button>
-          <button id="maskBtn" class="btn-ghost">Toggle Mask</button>
-          <button id="shareBtn" class="btn-ghost">Share</button>
-        </div>
+      <div class="btns">
+        <button id="genBtn">Generate Card</button>
+        <button id="copyBtn" class="btn-ghost">Copy JSON</button>
+        <button id="copyTextBtn" class="btn-ghost">Copy Text</button>
+        <button id="downloadBtn" class="btn-ghost">Download JSON</button>
+        <button id="maskBtn" class="btn-ghost">Toggle Mask</button>
+        <button id="shareBtn" class="btn-ghost">Share</button>
       </div>
 
       <div class="disclaimer" role="note">
@@ -289,143 +292,151 @@
 
       <footer class="signature">
         <div>App developed by <a href="https://virtualwarecloud.com" target="_blank" rel="noopener">virtualwarecloud.com</a></div>
-        <div style="opacity:0.9">Thabo Phaahla</div>
+        <div>Thabo Phaahla</div>
       </footer>
     </div>
 
-    <div class="right">
-      <div class="panel meta">
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div><strong class="small-muted">Generated data (preview)</strong></div>
-            <div class="small-muted" style="font-size:12px">Status: <span id="status">idle</span></div>
-          </div>
-
-          <div style="margin-top:8px" class="output-json" id="jsonOutput">
-            {/* JSON preview will appear here */}
-          </div>
-
-          <div class="footer-note">Use "Validate" to check any supplied card number for Luhn validity.</div>
+    <!-- RIGHT column -->
+    <div class="right panel meta">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><strong class="small-muted">Generated data (preview)</strong></div>
+          <div class="small-muted" style="font-size:12px">Status: <span id="status">idle</span></div>
         </div>
 
-        <div class="panel">
-          <label for="manualNumber">Validate a number / paste test card:</label>
-          <input id="manualNumber" placeholder="Paste card number to validate" inputmode="numeric" />
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="validateBtn" class="btn-ghost">Validate</button>
-            <button id="formatBtn" class="btn-ghost">Format</button>
-            <button id="useAsSeedBtn" class="btn-ghost">Use as BIN seed</button>
-          </div>
-          <div style="margin-top:10px" id="manualResult" class="small-muted">No check yet.</div>
+        <div style="margin-top:8px" class="output-json" id="jsonOutput">
+          {/* JSON preview will appear here */}
         </div>
 
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong class="small-muted">Developer Notes</strong></div>
-            <div class="small-muted">Ready for GitHub</div>
-          </div>
-          <ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
-            <li>All logic client-side; no external libs required.</li>
-            <li>Copy & Download produce JSON; toggle mask for UI testing.</li>
-            <li>Adjust BIN prefix to generate specific test patterns.</li>
-          </ul>
-          <div style="margin-top:10px;display:flex;gap:8px">
-            <button id="printBtn" class="btn-ghost">Print Preview</button>
-            <button id="resetBtn" class="btn-ghost">Reset</button>
-          </div>
+        <div class="footer-note">Use "Validate" to check any supplied card number for Luhn validity.</div>
+      </div>
+
+      <div class="panel">
+        <label for="manualNumber">Validate a number / paste test card:</label>
+        <input id="manualNumber" placeholder="Paste card number to validate" inputmode="numeric" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="validateBtn" class="btn-ghost">Validate</button>
+          <button id="formatBtn" class="btn-ghost">Format</button>
+          <button id="useAsSeedBtn" class="btn-ghost">Use as BIN seed</button>
+        </div>
+        <div style="margin-top:10px" id="manualResult" class="small-muted">No check yet.</div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong class="small-muted">Developer Notes</strong></div>
+          <div class="small-muted">Ready for GitHub</div>
+        </div>
+        <ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
+          <li>All logic client-side; no external libs required.</li>
+          <li>Copy & Download produce JSON; toggle mask for UI testing.</li>
+          <li>Adjust BIN prefix to generate specific test patterns.</li>
+        </ul>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="printBtn" class="btn-ghost">Print Preview</button>
+          <button id="resetBtn" class="btn-ghost">Reset</button>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-/* Utilities: Luhn, random helpers, formatting.
-   All generation is client-side and deterministic using Math.random.
-   NOTE: DO NOT use generated cards for real transactions. Dev/test only.
-*/
-
+/* ---------- Utilities ---------- */
 function luhnCheck(cardNumber) {
   const digits = cardNumber.replace(/\D/g, '').split('').map(d => parseInt(d, 10));
   if (digits.length === 0) return false;
-  let sum = 0;
-  let double = false;
+  let sum = 0; let double = false;
   for (let i = digits.length - 1; i >= 0; i--) {
     let d = digits[i];
-    if (double) {
-      d = d * 2;
-      if (d > 9) d -= 9;
-    }
-    sum += d;
-    double = !double;
+    if (double) { d = d * 2; if (d > 9) d -= 9; }
+    sum += d; double = !double;
   }
   return sum % 10 === 0;
 }
-
-// generate Luhn check digit for partial number (string of digits)
 function luhnGenerateCheckDigit(partial) {
   const digits = partial.replace(/\D/g, '').split('').map(d => parseInt(d, 10));
-  let sum = 0;
-  let double = true; // when computing check digit we act as if an extra digit will be appended (so start double true)
+  let sum = 0; let double = true;
   for (let i = digits.length - 1; i >= 0; i--) {
     let d = digits[i];
-    if (double) {
-      d = d * 2;
-      if (d > 9) d -= 9;
-    }
-    sum += d;
-    double = !double;
+    if (double) { d = d * 2; if (d > 9) d -= 9; }
+    sum += d; double = !double;
   }
-  const mod = sum % 10;
-  const check = mod === 0 ? 0 : (10 - mod);
-  return String(check);
+  const mod = sum % 10; return String(mod === 0 ? 0 : (10 - mod));
 }
-
-function generateRandomDigits(length) {
-  let s = '';
-  for (let i=0;i<length;i++){ s += String(Math.floor(Math.random()*10)); }
-  return s;
-}
-
+function generateRandomDigits(n){ let s=''; for(let i=0;i<n;i++) s += String(Math.floor(Math.random()*10)); return s; }
 function formatCardNumber(number) {
   const digits = number.replace(/\D/g,'');
-  if (digits.length === 15) { // Amex style 4-6-5
-    return digits.replace(/(\d{4})(\d{6})(\d{5})/, '$1 $2 $3');
-  }
+  if (digits.length === 15) return digits.replace(/(\d{4})(\d{6})(\d{5})/, '$1 $2 $3');
   return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
 }
+function randBetween(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
-function randBetween(min, max) {
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-
-/* Card rules for types */
+/* Card type rules */
 const CARD_TYPES = {
-  visa: { name: 'Visa', lengths: [16], prefixes: ['4'], cvvLen: 3 },
-  mastercard: { name: 'Mastercard', lengths: [16], prefixes: ['51','52','53','54','55','2221','2720'], cvvLen:3 },
-  amex: { name: 'American Express', lengths: [15], prefixes: ['34','37'], cvvLen:4 }
+  visa: { name:'Visa', lengths:[16], prefixes:['4'], cvvLen:3 },
+  mastercard: { name:'Mastercard', lengths:[16], prefixes:['51','52','53','54','55','2221','2720'], cvvLen:3 },
+  amex: { name:'American Express', lengths:[15], prefixes:['34','37'], cvvLen:4 }
 };
 
-function generateCardNumberFor(binPrefix, desiredLength) {
-  const clean = (binPrefix || '').replace(/\D/g,'');
-  const needed = desiredLength - clean.length - 1; // leave room for check digit
-  const body = clean + generateRandomDigits(Math.max(0, needed));
+function generateCardNumberFor(binPrefix, desiredLength){
+  const clean = (binPrefix||'').replace(/\D/g,'');
+  const needed = desiredLength - clean.length - 1;
+  const body = clean + generateRandomDigits(Math.max(0,needed));
   const check = luhnGenerateCheckDigit(body);
-  return (body + check);
+  return body + check;
 }
-
-function genExpiry(yearsAhead) {
+function genExpiry(yearsAhead){
   const month = randBetween(1,12);
   const year = new Date().getFullYear() + randBetween(1, parseInt(yearsAhead,10));
   return String(month).padStart(2,'0') + '/' + String(year).slice(-2);
 }
+function genCvv(len){ let s=''; for(let i=0;i<len;i++) s += String(Math.floor(Math.random()*10)); return s; }
 
-function genCvv(len) {
-  let s='';
-  for (let i=0;i<len;i++) s += String(Math.floor(Math.random()*10));
-  return s;
+/* ---------- Client detail auto-generator ---------- */
+function generateClientDetails() {
+  // Names, addresses, and phone generator with simple locale-aware phone code
+  const first = ["Aiden","Maya","Sam","Liam","Zola","Anele","Sibusiso","Ruth","Cedric","Nina","Thabo","Lerato"];
+  const last = ["Mkhize","Pillay","Smith","Jones","Pretorius","Muller","Brown","Ngwenya","Naidoo","Dlamini"];
+  const streets = ["Maple St","Main Rd","Highway","4th Ave","Church St","Oak Street","Sunrise Blvd"];
+  const cities = ["Johannesburg","Cape Town","Pretoria","Durban","Sandton","Franschhoek","Pilanesberg"];
+  const countries = ["South Africa","South Africa","South Africa","South Africa","South Africa","South Africa","South Africa"];
+
+  const name = first[randBetween(0,first.length-1)] + ' ' + last[randBetween(0,last.length-1)];
+  const house = randBetween(2,312);
+  const street = streets[randBetween(0,streets.length-1)];
+  const city = cities[randBetween(0,cities.length-1)];
+  const country = countries[randBetween(0,countries.length-1)];
+  const address = `${house} ${street}, ${city}, ${country}`;
+
+  // phone-country detection: fallback to +27 (South Africa) but try to use navigator.language
+  let countryCode = '+27';
+  try {
+    const lang = navigator.language || navigator.userLanguage || '';
+    if (typeof lang === 'string') {
+      const lower = lang.toLowerCase();
+      if (lower.includes('za')) countryCode = '+27';
+      else if (lower.includes('us')) countryCode = '+1';
+      else if (lower.includes('gb')||lower.includes('en-gb')) countryCode = '+44';
+      else if (lower.includes('fr')) countryCode = '+33';
+      // more rules can be added if needed
+    }
+  } catch(e){ countryCode = '+27'; }
+
+  // Generate plausible mobile-ish number tail
+  let phoneTail = '';
+  if (countryCode === '+27') {
+    // South African mobile format e.g. 82 123 4567
+    phoneTail = `${randBetween(60,99)} ${String(randBetween(100,999)).padStart(3,'0')} ${String(randBetween(1000,9999)).padStart(4,'0')}`;
+  } else if (countryCode === '+1') {
+    phoneTail = `${randBetween(201,999)}-${String(randBetween(200,999))}-${String(randBetween(1000,9999))}`;
+  } else {
+    phoneTail = String(randBetween(100000000,999999999));
+  }
+  const phone = `${countryCode} ${phoneTail}`;
+  return { name, address, phone };
 }
 
-/* UI binding and actions */
+/* ---------- UI Binds ---------- */
 const previewNumberEl = document.getElementById('previewNumber');
 const previewHolderEl = document.getElementById('previewHolder');
 const previewExpiryEl = document.getElementById('previewExpiry');
@@ -446,6 +457,16 @@ const clientPhoneDisplay = document.getElementById('clientPhoneDisplay');
 let lastGenerated = null;
 let masked = false;
 
+function maskNumber(num){
+  const digits = num.replace(/\D/g,'');
+  if (digits.length <= 4) return digits;
+  const last4 = digits.slice(-4);
+  if (digits.length === 15) {
+    return '•••• •••••• ' + digits.slice(-5);
+  }
+  return '•••• •••• •••• ' + last4;
+}
+
 function updatePreview(info){
   previewBankEl.textContent = info.bank;
   previewHolderEl.textContent = info.holder;
@@ -460,21 +481,16 @@ function updatePreview(info){
   clientAddressDisplay.textContent = info.client?.address || '—';
   clientPhoneDisplay.textContent = info.client?.phone || '—';
   if (info.client?.phone) {
-    clientPhoneDisplay.href = 'tel:' + info.client.phone.replace(/\s/g,'');
+    clientPhoneDisplay.href = 'tel:' + info.client.phone.replace(/[^\d+]/g,'');
   } else {
     clientPhoneDisplay.removeAttribute('href');
   }
 }
 
-function maskNumber(num){
-  const digits = num.replace(/\D/g,'');
-  if (digits.length <= 4) return digits;
-  const last4 = digits.slice(-4);
-  if (digits.length === 15) {
-    // Amex format masking
-    return '•••• •••••• ' + digits.slice(-5);
-  }
-  return '•••• •••• •••• ' + last4;
+function generateRandomName(){
+  const first = ["Aiden","Maya","Sam","Liam","Zola","Anele","Sibusiso","Ruth","Cedric","Nina","Thabo","Lerato"];
+  const last = ["Mkhize","Pillay","Smith","Jones","Pretorius","Muller","Brown","Ngwenya","Naidoo","Dlamini"];
+  return first[randBetween(0,first.length-1)] + ' ' + last[randBetween(0,last.length-1)];
 }
 
 function generateCreditCard(){
@@ -485,22 +501,23 @@ function generateCreditCard(){
   const typeInfo = CARD_TYPES[typeKey] || CARD_TYPES.visa;
   const length = typeInfo.lengths[0];
 
-  // client details capture
-  const clientName = (clientNameInput.value || '').trim();
-  const clientAddress = (clientAddressInput.value || '').trim();
-  const clientPhone = (clientPhoneInput.value || '').trim();
+  // If client inputs are empty, auto-generate sensible data
+  if (!clientNameInput.value.trim() || !clientAddressInput.value.trim() || !clientPhoneInput.value.trim()) {
+    const auto = generateClientDetails();
+    if (!clientNameInput.value.trim()) clientNameInput.value = auto.name;
+    if (!clientAddressInput.value.trim()) clientAddressInput.value = auto.address;
+    if (!clientPhoneInput.value.trim()) clientPhoneInput.value = auto.phone;
+  }
 
-  // Sanitize BIN
+  // capture final client values
+  const clientName = (clientNameInput.value || '').trim() || null;
+  const clientAddress = (clientAddressInput.value || '').trim() || null;
+  const clientPhone = (clientPhoneInput.value || '').trim() || null;
+
+  // sanitize BIN and create number
   let binClean = (bin || '').replace(/\D/g,'');
-  if (binClean.length > 0 && binClean.length >= length) {
-    binClean = binClean.slice(0, length-1);
-  }
-  let chosenPrefix = binClean;
-  if (!chosenPrefix) {
-    const pool = typeInfo.prefixes;
-    const p = pool[Math.floor(Math.random()*pool.length)];
-    chosenPrefix = p;
-  }
+  if (binClean.length > 0 && binClean.length >= length) binClean = binClean.slice(0, length-1);
+  let chosenPrefix = binClean || (typeInfo.prefixes[Math.floor(Math.random()*typeInfo.prefixes.length)]);
   const number = generateCardNumberFor(chosenPrefix, length);
   const expiry = genExpiry(years);
   const cvv = genCvv(typeInfo.cvvLen || 3);
@@ -519,9 +536,9 @@ function generateCreditCard(){
     holder,
     generatedAt: new Date().toISOString(),
     client: {
-      name: clientName || null,
-      address: clientAddress || null,
-      phone: clientPhone || null
+      name: clientName,
+      address: clientAddress,
+      phone: clientPhone
     }
   };
 
@@ -531,38 +548,26 @@ function generateCreditCard(){
   return info;
 }
 
-function generateRandomName(){
-  const first = ["Aiden","Maya","Sam","Liam","Zola","Anele","Sibusiso","Ruth","Cedric","Nina","Thabo","Lerato"];
-  const last = ["Mkhize","Pillay","Smith","Jones","Pretorius","Muller","Brown","Ngwenya","Naidoo","Dlamini"];
-  return first[randBetween(0,first.length-1)] + ' ' + last[randBetween(0,last.length-1)];
-}
-
-/* Buttons */
+/* ---------- Button handlers ---------- */
 document.getElementById('genBtn').addEventListener('click', ()=>{
-  try{
-    const info = generateCreditCard();
-    statusEl.textContent = 'OK';
+  try {
+    generateCreditCard();
+    // on mobile prefer masked preview
     if (window.innerWidth <= 520) masked = true;
-    updatePreview(info);
-  }catch(e){
-    console.error(e);
-    statusEl.textContent = 'error';
-  }
+    if (lastGenerated) updatePreview(lastGenerated);
+  } catch(e) { console.error(e); statusEl.textContent = 'error'; }
 });
 
 document.getElementById('copyBtn').addEventListener('click', async ()=>{
-  if (!lastGenerated){ alert('Generate a card first'); return; }
-  try{
+  if (!lastGenerated) { alert('Generate a card first'); return; }
+  try {
     await navigator.clipboard.writeText(JSON.stringify(lastGenerated, null, 2));
     alert('Card JSON copied to clipboard (dev/test only).');
-  }catch(e){
-    console.error(e);
-    alert('Could not copy — your browser may block clipboard access.');
-  }
+  } catch(e) { console.error(e); alert('Could not copy — clipboard blocked.'); }
 });
 
 document.getElementById('copyTextBtn').addEventListener('click', async ()=>{
-  if (!lastGenerated){ alert('Generate a card first'); return; }
+  if (!lastGenerated) { alert('Generate a card first'); return; }
   const info = lastGenerated;
   const lines = [
     `Card ID: ${info.id}`,
@@ -581,37 +586,24 @@ document.getElementById('copyTextBtn').addEventListener('click', async ()=>{
     'Generated (dev/test only): ' + info.generatedAt
   ];
   const text = lines.join('\n');
-  try{
-    await navigator.clipboard.writeText(text);
-    alert('Card & client text copied to clipboard.');
-  }catch(e){
-    console.error(e);
-    alert('Could not copy text — your browser may block clipboard access.');
-  }
+  try { await navigator.clipboard.writeText(text); alert('Card + client text copied to clipboard.'); }
+  catch(e){ console.error(e); alert('Could not copy text — clipboard blocked.'); }
 });
 
 document.getElementById('downloadBtn').addEventListener('click', ()=>{
-  if (!lastGenerated){ alert('Generate a card first'); return; }
+  if (!lastGenerated) { alert('Generate a card first'); return; }
   const blob = new Blob([JSON.stringify(lastGenerated, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = (lastGenerated.id || 'card') + '.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = (lastGenerated.id || 'card') + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 });
 
 document.getElementById('maskBtn').addEventListener('click', ()=>{
-  masked = !masked;
-  if (!lastGenerated) return;
-  updatePreview(lastGenerated);
+  masked = !masked; if (lastGenerated) updatePreview(lastGenerated);
 });
 
-/* Share button - uses navigator.share if available, falls back to copy + mailto */
 document.getElementById('shareBtn').addEventListener('click', async ()=>{
-  if (!lastGenerated){ alert('Generate a card first'); return; }
+  if (!lastGenerated) { alert('Generate a card first'); return; }
   const info = lastGenerated;
   const shareText = [
     `Card ID: ${info.id}`,
@@ -625,56 +617,27 @@ document.getElementById('shareBtn').addEventListener('click', async ()=>{
     `Client: ${info.client?.name || '-'} | ${info.client?.phone || '-'}`
   ].join('\n');
 
-  // Prefer Web Share API
   if (navigator.share) {
-    try {
-      await navigator.share({
-        title: 'Dev Card (Futuristic Generator)',
-        text: shareText
-        // no URL to avoid sharing sensitive-looking data
-      });
-      // Note: On success nothing else required
-    } catch (err) {
-      console.warn('Share canceled or failed', err);
-      // fallback to copying
-      try { await navigator.clipboard.writeText(shareText); alert('Share canceled — copied content to clipboard as fallback.'); }
-      catch(e){ alert('Share failed; unable to copy to clipboard on fallback.'); }
-    }
+    try { await navigator.share({ title: 'Dev Card (Futuristic)', text: shareText }); }
+    catch(err){ console.warn('Share failed or canceled', err); try { await navigator.clipboard.writeText(shareText); alert('Share canceled — content copied to clipboard.'); } catch(e){ alert('Share failed and copy fallback failed.'); } }
   } else {
-    // fallback: copy to clipboard and open mailto prefilled
-    try {
-      await navigator.clipboard.writeText(shareText);
-      const mailto = `mailto:?subject=${encodeURIComponent('Dev Card (Futuristic Generator)')}&body=${encodeURIComponent(shareText)}`;
-      // open mail client in new window/tab
-      window.open(mailto, '_blank');
-      alert('Copied to clipboard and opened email client as fallback.');
-    } catch (e) {
-      // last fallback: just show the text modal (alert)
-      alert('Your browser does not support native sharing. Here is the info:\n\n' + shareText);
-    }
+    try { await navigator.clipboard.writeText(shareText); const mailto = `mailto:?subject=${encodeURIComponent('Dev Card (Futuristic)')}&body=${encodeURIComponent(shareText)}`; window.open(mailto,'_blank'); alert('Copied to clipboard and opened email client (fallback).'); }
+    catch(e){ alert('Native share not available; showing text:\n\n' + shareText); }
   }
 });
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  lastGenerated = null;
-  masked = false;
+  lastGenerated = null; masked = false;
   previewBankEl.textContent = 'BANK NAME';
   previewHolderEl.textContent = 'FULL NAME';
   previewExpiryEl.textContent = 'MM/YY';
   previewNumberEl.textContent = '•••• •••• •••• ••••';
-  previewCvvEl.textContent = '•••';
-  previewIdEl.textContent = '—';
-  jsonOutputEl.textContent = '';
-  statusEl.textContent = 'idle';
-  clientNameInput.value = '';
-  clientAddressInput.value = '';
-  clientPhoneInput.value = '';
-  clientNameDisplay.textContent = '—';
-  clientAddressDisplay.textContent = '—';
-  clientPhoneDisplay.textContent = '—';
+  previewCvvEl.textContent = '•••'; previewIdEl.textContent = '—';
+  jsonOutputEl.textContent = ''; statusEl.textContent = 'idle';
+  clientNameInput.value=''; clientAddressInput.value=''; clientPhoneInput.value='';
+  clientNameDisplay.textContent='—'; clientAddressDisplay.textContent='—'; clientPhoneDisplay.textContent='—';
 });
 
-/* Manual validation area */
 document.getElementById('validateBtn').addEventListener('click', ()=>{
   const v = document.getElementById('manualNumber').value.trim();
   if (!v) { document.getElementById('manualResult').textContent = 'Paste a number to validate.'; return; }
@@ -692,17 +655,25 @@ document.getElementById('formatBtn').addEventListener('click', ()=>{
 document.getElementById('useAsSeedBtn').addEventListener('click', ()=>{
   const v = document.getElementById('manualNumber').value.replace(/\s/g,'').trim();
   if (!v) return alert('Paste a number first to use as seed/BIN.');
-  const seed = v.slice(0,6);
-  document.getElementById('binInput').value = seed;
-  alert('BIN seed set to ' + seed);
+  const seed = v.slice(0,6); document.getElementById('binInput').value = seed; alert('BIN seed set to ' + seed);
 });
 
-/* Print preview */
-document.getElementById('printBtn').addEventListener('click', ()=>{
-  window.print();
+document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+/* Live-update preview when client fields change */
+[clientNameInput, clientAddressInput, clientPhoneInput].forEach(el=>{
+  el.addEventListener('input', ()=>{
+    if (!lastGenerated) return;
+    lastGenerated.client = {
+      name: clientNameInput.value || null,
+      address: clientAddressInput.value || null,
+      phone: clientPhoneInput.value || null
+    };
+    updatePreview(lastGenerated);
+  });
 });
 
-/* Simple initialization */
+/* Init */
 (function init(){
   previewNumberEl.textContent = '•••• •••• •••• ••••';
   statusEl.textContent = 'ready';
