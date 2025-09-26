@@ -97,6 +97,17 @@
       .card-number{ font-size:18px }
       .control-btn{ padding:14px; font-size:15px }
     }
+
+    /* footer signature */
+    .signature {
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .signature a { color: var(--accent); text-decoration:none; font-weight:600; }
   </style>
 </head>
 <body>
@@ -144,23 +155,22 @@
         GENERATE
       </button>
 
-      <button class="control-btn share" id="shareBtn" aria-label="Share card">
+      <button class="control-btn share" id="shareBtn" aria-label="Share card" title="Share using your device">
         <!-- Minimal share icon (inline SVG) -->
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" role="img">
           <path d="M15 8a3 3 0 1 0-2.83-4H8a1 1 0 0 0-1 1v3.17A3 3 0 1 0 9.17 13H16a1 1 0 0 0 1-1V9.83A3 3 0 0 0 15 8zm-7 8a3 3 0 1 0 2.83 4H16a1 1 0 0 0 1-1v-3.17A3 3 0 1 0 14.83 11H8a1 1 0 0 0-1 1v3.17A3 3 0 0 0 8 16z"/>
         </svg>
         SHARE
       </button>
     </div>
 
-    <div class="note"><strong>Dev/test only:</strong> generated numbers are synthetic & Luhn-valid. Do not use for real payments.</div>
-  </div>
+    <div class="note"><strong>Dev/test only:</strong> generated numbers are synthetic &amp; Luhn-valid. Do not use for real payments.</div>
 
-        <footer class="signature">
-        <div>App developed by <a href="https://virtualwarecloud.com" target="_blank" rel="noopener">virtualwarecloud.com</a></div>
-        <div>Thabo Phaahla</div>
-      </footer>
+    <div class="signature" aria-hidden="true">
+      <div>App developed by <a href="https://virtualwarecloud.com" target="_blank" rel="noopener noreferrer">virtualwarecloud.com</a></div>
+      <div>Thabo Phaahla</div>
     </div>
+  </div>
 
 <script>
 /* --- Minimal Luhn/card generator + Share button --- */
@@ -247,6 +257,10 @@ document.getElementById('shareBtn').addEventListener('click', async function(){
     return;
   }
 
+  // ask user to confirm (prevents accidental sharing)
+  const ok = confirm('Share this dev/test card? It contains synthetic test data only. Press OK to continue.');
+  if (!ok) return;
+
   // Compose a short shareable text
   const text = [
     `Dev Card — ${lastCard.bank}`,
@@ -279,11 +293,9 @@ document.getElementById('shareBtn').addEventListener('click', async function(){
     try {
       await navigator.clipboard.writeText(text);
       const mailto = `mailto:?subject=${encodeURIComponent('Dev Card (VirtualWareCloud)')}&body=${encodeURIComponent(text)}`;
-      // open mail client in new tab/window (will prompt)
       window.open(mailto, '_blank');
       alert('Card details copied to clipboard and your mail client was opened as a fallback.');
     } catch (e) {
-      // Last resort: show the text in a simple dialog
       alert('Native sharing not available. Here are the card details:\n\n' + text);
     }
   }
